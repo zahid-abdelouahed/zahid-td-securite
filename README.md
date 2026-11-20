@@ -151,5 +151,6 @@ La configuration CORS fonctionne : le front Angular peut appeler l'API avec les 
   5. le CSRF :
     On le désactive. Une attaque CSRF exploite le fait que le navigateur renvoie automatiquement un cookie de session. Ici, il n'y a pas de session : l'en-tête Authorization est ajouté par le code, jamais automatiquement par le navigateur. Sans cette désactivation, tous les POST renverraient 403.
   
+  6. Dans la chaîne  : .requestMatchers(HttpMethod.POST,"/api/virements/*/valider").hasRole("CONSEILLER")
 
   
