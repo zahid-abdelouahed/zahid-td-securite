@@ -28,7 +28,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())                       
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()   
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+                .requestMatchers(HttpMethod.POST, "/api/virements/*/valider").hasRole("CONSEILLER")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll())
             .httpBasic(Customizer.withDefaults());
