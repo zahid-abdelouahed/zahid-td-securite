@@ -105,3 +105,51 @@ Règles à faire respecter **côté serveur** :
 - Répondre `404` plutôt que `403` sur le compte d'un autre : pourquoi ?
 - Pourquoi BCrypt plutôt que SHA-256 ? Quel est son coût à chaque requête en Basic Auth ?
 - Que faudrait-il changer pour passer en JWT ou en session ?
+
+## Reponses de TD
+
+  1. Que renvoie maintenant l'API : toutes les requêtes reçoivent 401 Unauthorized.
+     Spring Security active une chaîne de filtres qui exige une authentification sur toutes les URL (
+     secure by default).
+
+  2. Vérification : curl -u alice:alice123 localhost:8080/api/me >>>>  {"login":"alice","roles":["CLIENT"]}
+   
+  3. Vérification : curl -v -u alice:alice123 localhost:8080/api/me 2>&1 | grep Authorization080/api/me 2>&1 | grep Authorization
+    >>>>>>>>>>>>> Authorization: Basic YWxpY2U6YWxpY2UxMjM=
+   echo YWxpY2U6YWxpY2UxMjM= | base64 -d
+   >>>>>>>>>>>>> alice:alice123(base)
+   
+   non ça ce n'est pas du chiffrement. Base64 est un encodage réversible par
+   n'importe qui, sans clé. Le login et le mot de passe circulent donc en clair à chaque requête.
+  
+  4. Vérification CORS :
+
+```bash
+curl -i -XOPTIONS localhost:8080/api/comptes -H 'Origin: http://localhost:4200' -H 'Access-Control-Request-Method: GET' -H 'Access-Control-Request-Headers: authorization'
+```
+
+Résultat : 
+HTTP/1.1 200 
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Access-Control-Allow-Origin: http://localhost:4200
+Access-Control-Allow-Methods: GET,POST,PUT,DELETE
+Access-Control-Allow-Headers: authorization
+Access-Control-Max-Age: 1800
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 0
+Date: Fri, 20 Nov 2026 15:02:28 GMT
+
+La configuration CORS fonctionne : le front Angular peut appeler l'API avec les méthodes GET, POST, PUT et DELETE et envoyer le token dans l'en-tête `Authorization`.
+
+  5. le CSRF :
+    On le désactive. Une attaque CSRF exploite le fait que le navigateur renvoie automatiquement un cookie de session. Ici, il n'y a pas de session : l'en-tête Authorization est ajouté par le code, jamais automatiquement par le navigateur. Sans cette désactivation, tous les POST renverraient 403.
+  
+
+  
